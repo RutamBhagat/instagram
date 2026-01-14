@@ -1,0 +1,3 @@
+{
+  "extends": "@instagram/config/tsconfig.base.json"
+}

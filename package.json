@@ -1,0 +1,40 @@
+{
+  "name": "instagram",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "type": "module",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "check-types": "turbo check-types",
+    "dev:native": "turbo -F native dev",
+    "dev:web": "turbo -F web dev",
+    "dev:server": "turbo -F server dev",
+    "db:push": "turbo -F @instagram/db db:push",
+    "db:studio": "turbo -F @instagram/db db:studio",
+    "db:generate": "turbo -F @instagram/db db:generate",
+    "db:migrate": "turbo -F @instagram/db db:migrate",
+    "db:start": "turbo -F @instagram/db db:start",
+    "db:watch": "turbo -F @instagram/db db:watch",
+    "db:stop": "turbo -F @instagram/db db:stop",
+    "db:down": "turbo -F @instagram/db db:down",
+    "check": "oxlint && oxfmt --write"
+  },
+  "dependencies": {
+    "@instagram/env": "workspace:*",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@instagram/config": "workspace:*",
+    "@types/node": "catalog:",
+    "oxfmt": "^0.19.0",
+    "oxlint": "^1.34.0",
+    "turbo": "^2.6.3",
+    "typescript": "catalog:"
+  },
+  "packageManager": "pnpm@10.19.0"
+}
