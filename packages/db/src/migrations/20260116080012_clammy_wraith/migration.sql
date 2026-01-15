@@ -1,0 +1,1 @@
+ALTER TABLE "posts" ADD CONSTRAINT "posts_location_lon_lat_chk" CHECK (ST_SRID("location") = 4326 AND ST_X("location") BETWEEN -180 AND 180 AND ST_Y("location") BETWEEN -90 AND 90);
