@@ -20,6 +20,12 @@ export const reactionTypeEnum = pgEnum("reaction_type", [
   "sad",
 ]);
 
+export const userStatusEnum = pgEnum("user_status", [
+  "active",
+  "inactive",
+  "deleted",
+]);
+
 const timestamps = {
   createdAt: timestamp().notNull().defaultNow(),
   updatedAt: timestamp().$onUpdate(() => new Date()),
@@ -28,8 +34,13 @@ const timestamps = {
 export const usersTable = pgTable("users", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   username: varchar({ length: 30 }).notNull().unique(),
-  createdAt: timestamp().notNull().defaultNow(),
-  updatedAt: timestamp().$onUpdate(() => new Date()),
+  bio: varchar({ length: 400 }),
+  avatarUrl: varchar(),
+  phoneNumber: varchar({ length: 25 }),
+  email: varchar({ length: 255 }).notNull().unique(),
+  password: varchar({ length: 255 }).notNull(),
+  status: userStatusEnum().notNull().default("active"),
+  ...timestamps,
 });
 
 export const postsTable = pgTable(
