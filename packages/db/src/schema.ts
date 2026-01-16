@@ -103,14 +103,14 @@ export const hashtagsTable = pgTable("hashtags", {
 export const hashtagsPostsTable = pgTable(
   "hashtag_posts",
   {
-    postId: integer()
-      .notNull()
-      .references(() => postsTable.id, { onDelete: "cascade" }),
     hashtagId: integer()
       .notNull()
       .references(() => hashtagsTable.id, {
         onDelete: "cascade",
       }),
+    postId: integer()
+      .notNull()
+      .references(() => postsTable.id, { onDelete: "cascade" }),
   },
   (table) => [
     index().on(table.postId),
