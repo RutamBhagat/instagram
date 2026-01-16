@@ -12,11 +12,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
-export const userStatusEnum = pgEnum("user_status", [
-  "active",
-  "inactive",
-  "deleted",
-]);
+export const userStatusEnum = pgEnum("user_status", ["active", "inactive", "deleted"]);
 
 const timestamps = {
   createdAt: timestamp().notNull().defaultNow(),
@@ -41,9 +37,9 @@ export const usersTable = pgTable(
   (table) => [
     check(
       "users_email_or_phone_number_chk",
-      sql`coalesce(${table.email}, ${table.phoneNumber}) IS NOT NULL`
+      sql`coalesce(${table.email}, ${table.phoneNumber}) IS NOT NULL`,
     ),
-  ]
+  ],
 );
 
 export const followersTable = pgTable(
@@ -65,11 +61,8 @@ export const followersTable = pgTable(
     index().on(table.followerId),
     index().on(table.leaderId),
     primaryKey({ columns: [table.followerId, table.leaderId] }),
-    check(
-      "user_follows_no_self_follow_chk",
-      sql`${table.followerId} != ${table.leaderId}`
-    ),
-  ]
+    check("user_follows_no_self_follow_chk", sql`${table.followerId} != ${table.leaderId}`),
+  ],
 );
 
 export const postsTable = pgTable(
@@ -89,9 +82,9 @@ export const postsTable = pgTable(
     index().using("gist", table.location),
     check(
       "posts_location_lon_lat_chk",
-      sql`ST_SRID(${table.location}) = 4326 AND ST_X(${table.location}) BETWEEN -180 AND 180 AND ST_Y(${table.location}) BETWEEN -90 AND 90`
+      sql`ST_SRID(${table.location}) = 4326 AND ST_X(${table.location}) BETWEEN -180 AND 180 AND ST_Y(${table.location}) BETWEEN -90 AND 90`,
     ),
-  ]
+  ],
 );
 
 export const hashtagsTable = pgTable("hashtags", {
@@ -116,7 +109,7 @@ export const hashtagsPostsTable = pgTable(
     index().on(table.postId),
     index().on(table.hashtagId),
     primaryKey({ columns: [table.postId, table.hashtagId] }),
-  ]
+  ],
 );
 
 export const photoTagsTable = pgTable(
@@ -135,12 +128,9 @@ export const photoTagsTable = pgTable(
   (table) => [
     index().on(table.postId),
     index().on(table.userId),
-    check(
-      "photo_tags_xy_chk",
-      sql`${table.x} BETWEEN 0 AND 1 AND ${table.y} BETWEEN 0 AND 1`
-    ),
+    check("photo_tags_xy_chk", sql`${table.x} BETWEEN 0 AND 1 AND ${table.y} BETWEEN 0 AND 1`),
     primaryKey({ columns: [table.postId, table.userId] }),
-  ]
+  ],
 );
 
 export const captionTagsTable = pgTable(
@@ -158,7 +148,7 @@ export const captionTagsTable = pgTable(
     index().on(table.postId),
     index().on(table.userId),
     primaryKey({ columns: [table.postId, table.userId] }),
-  ]
+  ],
 );
 
 export const commentsTable = pgTable("comments", {
@@ -184,7 +174,7 @@ export const postLikesTable = pgTable(
       .references(() => usersTable.id, { onDelete: "cascade" }),
     ...timestamps,
   },
-  (table) => [primaryKey({ columns: [table.postId, table.userId] })]
+  (table) => [primaryKey({ columns: [table.postId, table.userId] })],
 );
 
 export const commentLikesTable = pgTable(
@@ -200,5 +190,5 @@ export const commentLikesTable = pgTable(
       .references(() => usersTable.id, { onDelete: "cascade" }),
     ...timestamps,
   },
-  (table) => [primaryKey({ columns: [table.commentId, table.userId] })]
+  (table) => [primaryKey({ columns: [table.commentId, table.userId] })],
 );

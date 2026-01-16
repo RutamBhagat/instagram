@@ -54,19 +54,11 @@ async function clearTables() {
 async function seedUsers() {
   const users = Array.from({ length: shown.users }, (_, index) => {
     const username = makeUsername(index + 1);
-    const status = faker.helpers.arrayElement([
-      "active",
-      "active",
-      "active",
-      "inactive",
-    ] as const);
+    const status = faker.helpers.arrayElement(["active", "active", "active", "inactive"] as const);
 
     return {
       username,
-      bio: faker.helpers.arrayElement([
-        null,
-        faker.lorem.sentence({ min: 6, max: 14 }),
-      ]),
+      bio: faker.helpers.arrayElement([null, faker.lorem.sentence({ min: 6, max: 14 })]),
       avatarUrl: faker.image.avatar(),
       phoneNumber: faker.helpers.arrayElement([null, faker.phone.number()]),
       email: `${username}@example.test`,
@@ -97,21 +89,14 @@ async function seedPosts(userIds: number[]) {
       return {
         contents: faker.lorem.paragraph({ min: 1, max: 3 }),
         url: faker.image.url(),
-        caption: faker.helpers.arrayElement([
-          null,
-          faker.lorem.sentence({ min: 4, max: 10 }),
-        ]),
-        location: includeLocation
-          ? sql`ST_SetSRID(ST_MakePoint(${lon}, ${lat}), 4326)`
-          : null,
+        caption: faker.helpers.arrayElement([null, faker.lorem.sentence({ min: 4, max: 10 })]),
+        location: includeLocation ? sql`ST_SetSRID(ST_MakePoint(${lon}, ${lat}), 4326)` : null,
         userId,
       };
     });
   });
 
-  return posts.length
-    ? db.insert(schema.postsTable).values(posts).returning()
-    : [];
+  return posts.length ? db.insert(schema.postsTable).values(posts).returning() : [];
 }
 
 async function seedHashtags() {
@@ -184,14 +169,11 @@ async function seedComments(userIds: number[], postIds: number[]) {
     }
   }
 
-  return entries.length
-    ? db.insert(schema.commentsTable).values(entries).returning()
-    : [];
+  return entries.length ? db.insert(schema.commentsTable).values(entries).returning() : [];
 }
 
 async function seedPhotoTags(userIds: number[], postIds: number[]) {
-  const entries: { userId: number; postId: number; x: number; y: number }[] =
-    [];
+  const entries: { userId: number; postId: number; x: number; y: number }[] = [];
   const seen = new Set<string>();
 
   for (const postId of postIds) {
@@ -311,7 +293,7 @@ async function main() {
   await seedCommentLikes(userIds, commentIds);
 
   console.log(
-    `Seeded ${userIds.length} users, ${postIds.length} posts, ${commentIds.length} comments.`
+    `Seeded ${userIds.length} users, ${postIds.length} posts, ${commentIds.length} comments.`,
   );
 }
 
