@@ -9,6 +9,14 @@ export const relations = defineRelations(schema, (r) => ({
     commentReactions: r.many.commentReactionsTable(),
     photoTags: r.many.photoTagsTable(),
     captionTags: r.many.captionTagsTable(),
+    following: r.many.followersTable({
+      from: r.usersTable.id.through(r.followersTable.followerId),
+      to: r.usersTable.id.through(r.followersTable.leaderId),
+    }),
+    followers: r.many.followersTable({
+      from: r.usersTable.id.through(r.followersTable.leaderId),
+      to: r.usersTable.id.through(r.followersTable.followerId),
+    }),
   },
   postsTable: {
     user: r.one.usersTable({

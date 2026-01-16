@@ -26,6 +26,12 @@ export const userStatusEnum = pgEnum("user_status", [
   "deleted",
 ]);
 
+export const followRequestStatusEnum = pgEnum("follow_request_status", [
+  "pending",
+  "accepted",
+  "rejected",
+]);
+
 const timestamps = {
   createdAt: timestamp().notNull().defaultNow(),
   updatedAt: timestamp().$onUpdate(() => new Date()),
@@ -42,6 +48,32 @@ export const usersTable = pgTable("users", {
   status: userStatusEnum().notNull().default("active"),
   ...timestamps,
 });
+
+export const followersTable = pgTable(
+  "followers",
+  {
+    leaderId: integer()
+      .notNull()
+      .references(() => usersTable.id, {
+        onDelete: "cascade",
+      }),
+    followerId: integer()
+      .notNull()
+      .references(() => usersTable.id, {
+        onDelete: "cascade",
+      }),
+    createdAt: timestamp().notNull().defaultNow(),
+  },
+  (table) => [
+    index("user_follows_follower_id_idx").on(table.followerId),
+    index("user_follows_user_id_idx").on(table.leaderId),
+    primaryKey({ columns: [table.followerId, table.leaderId] }),
+    check(
+      "user_follows_no_self_follow_chk",
+      sql`${table.followerId} != ${table.leaderId}`
+    ),
+  ]
+);
 
 export const postsTable = pgTable(
   "posts",
@@ -97,8 +129,8 @@ export const photoTagsTable = pgTable(
     postId: integer()
       .notNull()
       .references(() => postsTable.id, { onDelete: "cascade" }),
-    x: doublePrecision("tag_x").notNull(),
-    y: doublePrecision("tag_y").notNull(),
+    x: doublePrecision().notNull(),
+    y: doublePrecision().notNull(),
     ...timestamps,
   },
   (table) => [
