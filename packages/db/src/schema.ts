@@ -88,7 +88,9 @@ export const postsTable = pgTable(
     url: varchar().notNull(),
     caption: varchar({ length: 240 }),
     location: geometry("location", { type: "point", mode: "xy", srid: 4326 }),
-    userId: integer().references(() => usersTable.id, { onDelete: "cascade" }),
+    userId: integer()
+      .notNull()
+      .references(() => usersTable.id, { onDelete: "cascade" }),
     ...timestamps,
   },
   (table) => [
@@ -170,8 +172,12 @@ export const captionTagsTable = pgTable(
 export const commentsTable = pgTable("comments", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   contents: varchar({ length: 240 }).notNull(),
-  postId: integer().references(() => postsTable.id, { onDelete: "cascade" }),
-  userId: integer().references(() => usersTable.id, { onDelete: "cascade" }),
+  userId: integer()
+    .notNull()
+    .references(() => usersTable.id, { onDelete: "cascade" }),
+  postId: integer()
+    .notNull()
+    .references(() => postsTable.id, { onDelete: "cascade" }),
   ...timestamps,
 });
 
@@ -179,8 +185,12 @@ export const postReactionsTable = pgTable(
   "post_reactions",
   {
     type: reactionTypeEnum().notNull().default("like"),
-    postId: integer().references(() => postsTable.id, { onDelete: "cascade" }),
-    userId: integer().references(() => usersTable.id, { onDelete: "cascade" }),
+    postId: integer()
+      .notNull()
+      .references(() => postsTable.id, { onDelete: "cascade" }),
+    userId: integer()
+      .notNull()
+      .references(() => usersTable.id, { onDelete: "cascade" }),
     ...timestamps,
   },
   (table) => [primaryKey({ columns: [table.postId, table.userId] })]
@@ -190,10 +200,14 @@ export const commentReactionsTable = pgTable(
   "comment_reactions",
   {
     type: reactionTypeEnum().notNull().default("like"),
-    commentId: integer().references(() => commentsTable.id, {
-      onDelete: "cascade",
-    }),
-    userId: integer().references(() => usersTable.id, { onDelete: "cascade" }),
+    commentId: integer()
+      .notNull()
+      .references(() => commentsTable.id, {
+        onDelete: "cascade",
+      }),
+    userId: integer()
+      .notNull()
+      .references(() => usersTable.id, { onDelete: "cascade" }),
     ...timestamps,
   },
   (table) => [primaryKey({ columns: [table.commentId, table.userId] })]
