@@ -52,6 +52,31 @@ export const postsTable = pgTable(
   ]
 );
 
+export const hashtagsTable = pgTable("hashtags", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  title: varchar({ length: 50 }).notNull().unique(),
+  createdAt: timestamp().notNull().defaultNow(),
+});
+
+export const hashtagsPostsTable = pgTable(
+  "hashtag_posts",
+  {
+    postId: integer()
+      .notNull()
+      .references(() => postsTable.id, { onDelete: "cascade" }),
+    hashtagId: integer()
+      .notNull()
+      .references(() => hashtagsTable.id, {
+        onDelete: "cascade",
+      }),
+  },
+  (table) => [
+    index("hashtag_posts_post_id_idx").on(table.postId),
+    index("hashtag_posts_hashtag_id_idx").on(table.hashtagId),
+    primaryKey({ columns: [table.postId, table.hashtagId] }),
+  ]
+);
+
 export const photoTagsTable = pgTable(
   "photo_tags",
   {

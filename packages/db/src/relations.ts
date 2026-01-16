@@ -20,6 +20,10 @@ export const relations = defineRelations(schema, (r) => ({
     commentReactions: r.many.commentReactionsTable(),
     photoTags: r.many.photoTagsTable(),
     captionTags: r.many.captionTagsTable(),
+    hashtags: r.many.hashtagsTable({
+      from: r.postsTable.id.through(r.hashtagsPostsTable.postId),
+      to: r.hashtagsTable.id.through(r.hashtagsPostsTable.hashtagId),
+    }),
   },
   commentsTable: {
     post: r.one.postsTable({
@@ -69,6 +73,12 @@ export const relations = defineRelations(schema, (r) => ({
     user: r.one.usersTable({
       from: r.captionTagsTable.userId,
       to: r.usersTable.id,
+    }),
+  },
+  hashtagsTable: {
+    posts: r.many.postsTable({
+      from: r.hashtagsTable.id.through(r.hashtagsPostsTable.hashtagId),
+      to: r.postsTable.id.through(r.hashtagsPostsTable.postId),
     }),
   },
 }));
