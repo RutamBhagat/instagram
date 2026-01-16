@@ -12,14 +12,6 @@ import {
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
-export const reactionTypeEnum = pgEnum("reaction_type", [
-  "like",
-  "love",
-  "care",
-  "funny",
-  "sad",
-]);
-
 export const userStatusEnum = pgEnum("user_status", [
   "active",
   "inactive",
@@ -181,10 +173,9 @@ export const commentsTable = pgTable("comments", {
   ...timestamps,
 });
 
-export const postReactionsTable = pgTable(
-  "post_reactions",
+export const postLikesTable = pgTable(
+  "post_likes",
   {
-    type: reactionTypeEnum().notNull().default("like"),
     postId: integer()
       .notNull()
       .references(() => postsTable.id, { onDelete: "cascade" }),
@@ -196,10 +187,9 @@ export const postReactionsTable = pgTable(
   (table) => [primaryKey({ columns: [table.postId, table.userId] })]
 );
 
-export const commentReactionsTable = pgTable(
-  "comment_reactions",
+export const commentLikesTable = pgTable(
+  "comment_likes",
   {
-    type: reactionTypeEnum().notNull().default("like"),
     commentId: integer()
       .notNull()
       .references(() => commentsTable.id, {

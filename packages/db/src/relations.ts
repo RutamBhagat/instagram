@@ -5,8 +5,8 @@ export const relations = defineRelations(schema, (r) => ({
   usersTable: {
     posts: r.many.postsTable(),
     comments: r.many.commentsTable(),
-    postReactions: r.many.postReactionsTable(),
-    commentReactions: r.many.commentReactionsTable(),
+    postLikes: r.many.postLikesTable(),
+    commentLikes: r.many.commentLikesTable(),
     photoTags: r.many.photoTagsTable(),
     captionTags: r.many.captionTagsTable(),
     following: r.many.usersTable({
@@ -24,7 +24,7 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.usersTable.id,
     }),
     comments: r.many.commentsTable(),
-    postReactions: r.many.postReactionsTable(),
+    postLikes: r.many.postLikesTable(),
     photoTags: r.many.photoTagsTable(),
     captionTags: r.many.captionTagsTable(),
     hashtags: r.many.hashtagsTable({
@@ -41,25 +41,25 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.commentsTable.userId,
       to: r.usersTable.id,
     }),
-    commentReactions: r.many.commentReactionsTable(),
+    commentLikes: r.many.commentLikesTable(),
   },
-  postReactionsTable: {
+  postLikesTable: {
     post: r.one.postsTable({
-      from: r.postReactionsTable.postId,
+      from: r.postLikesTable.postId,
       to: r.postsTable.id,
     }),
     user: r.one.usersTable({
-      from: r.postReactionsTable.userId,
+      from: r.postLikesTable.userId,
       to: r.usersTable.id,
     }),
   },
-  commentReactionsTable: {
+  commentLikesTable: {
     comment: r.one.commentsTable({
-      from: r.commentReactionsTable.commentId,
+      from: r.commentLikesTable.commentId,
       to: r.commentsTable.id,
     }),
     user: r.one.usersTable({
-      from: r.commentReactionsTable.userId,
+      from: r.commentLikesTable.userId,
       to: r.usersTable.id,
     }),
   },

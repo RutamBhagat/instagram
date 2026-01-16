@@ -3,8 +3,6 @@ import { db } from "@instagram/db";
 import * as schema from "@instagram/db/schema";
 import { sql } from "@instagram/db/index";
 
-const REACTION_TYPES = ["like", "love", "care", "funny", "sad"] as const;
-
 const shown = {
   users: 20,
   postsPerUserMin: 1,
@@ -13,8 +11,8 @@ const shown = {
   maxHashtagsPerPost: 3,
   maxFollowersPerUser: 5,
   maxCommentsPerPost: 5,
-  maxReactionsPerPost: 6,
-  maxReactionsPerComment: 4,
+  maxLikesPerPost: 6,
+  maxLikesPerComment: 4,
   maxPhotoTagsPerPost: 2,
   maxCaptionTagsPerPost: 2,
 };
@@ -36,8 +34,8 @@ function makeHashtag(index: number) {
 
 async function clearTables() {
   const tables = [
-    schema.commentReactionsTable,
-    schema.postReactionsTable,
+    schema.commentLikesTable,
+    schema.postLikesTable,
     schema.photoTagsTable,
     schema.captionTagsTable,
     schema.hashtagsPostsTable,
@@ -242,47 +240,35 @@ async function seedCaptionTags(userIds: number[], postIds: number[]) {
   }
 }
 
-async function seedPostReactions(userIds: number[], postIds: number[]) {
-  const entries: {
-    type: (typeof REACTION_TYPES)[number];
-    postId: number;
-    userId: number;
-  }[] = [];
+async function seedPostLikes(userIds: number[], postIds: number[]) {
+  const entries: { postId: number; userId: number }[] = [];
   const seen = new Set<string>();
 
   for (const postId of postIds) {
-    const count = faker.number.int({ min: 0, max: shown.maxReactionsPerPost });
+    const count = faker.number.int({ min: 0, max: shown.maxLikesPerPost });
     const pickedUsers = faker.helpers.arrayElements(userIds, count);
 
     for (const userId of pickedUsers) {
       const key = `${postId}:${userId}`;
       if (seen.has(key)) continue;
       seen.add(key);
-      entries.push({
-        type: faker.helpers.arrayElement(REACTION_TYPES),
-        postId,
-        userId,
-      });
+      entries.push({ postId, userId });
     }
   }
 
   if (entries.length) {
-    await db.insert(schema.postReactionsTable).values(entries);
+    await db.insert(schema.postLikesTable).values(entries);
   }
 }
 
-async function seedCommentReactions(userIds: number[], commentIds: number[]) {
-  const entries: {
-    type: (typeof REACTION_TYPES)[number];
-    commentId: number;
-    userId: number;
-  }[] = [];
+async function seedCommentLikes(userIds: number[], commentIds: number[]) {
+  const entries: { commentId: number; userId: number }[] = [];
   const seen = new Set<string>();
 
   for (const commentId of commentIds) {
     const count = faker.number.int({
       min: 0,
-      max: shown.maxReactionsPerComment,
+      max: shown.maxLikesPerComment,
     });
     const pickedUsers = faker.helpers.arrayElements(userIds, count);
 
@@ -290,16 +276,12 @@ async function seedCommentReactions(userIds: number[], commentIds: number[]) {
       const key = `${commentId}:${userId}`;
       if (seen.has(key)) continue;
       seen.add(key);
-      entries.push({
-        type: faker.helpers.arrayElement(REACTION_TYPES),
-        commentId,
-        userId,
-      });
+      entries.push({ commentId, userId });
     }
   }
 
   if (entries.length) {
-    await db.insert(schema.commentReactionsTable).values(entries);
+    await db.insert(schema.commentLikesTable).values(entries);
   }
 }
 
@@ -325,8 +307,8 @@ async function main() {
 
   await seedPhotoTags(userIds, postIds);
   await seedCaptionTags(userIds, postIds);
-  await seedPostReactions(userIds, postIds);
-  await seedCommentReactions(userIds, commentIds);
+  await seedPostLikes(userIds, postIds);
+  await seedCommentLikes(userIds, commentIds);
 
   console.log(
     `Seeded ${userIds.length} users, ${postIds.length} posts, ${commentIds.length} comments.`
