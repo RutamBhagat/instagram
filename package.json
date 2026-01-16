@@ -18,6 +18,7 @@
     "db:generate": "turbo -F @instagram/db db:generate",
     "db:migrate": "turbo -F @instagram/db db:migrate",
     "db:pull": "turbo -F @instagram/db db:pull",
+    "db:seed": "turbo -F server db:seed",
     "db:start": "turbo -F @instagram/db db:start",
     "db:watch": "turbo -F @instagram/db db:watch",
     "db:stop": "turbo -F @instagram/db db:stop",

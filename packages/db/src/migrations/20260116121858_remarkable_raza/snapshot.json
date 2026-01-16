@@ -1,12 +1,18 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "4b67b5a3-c372-4b60-99d0-6b65e578f152",
-  "prevIds": ["a77539c6-f5d9-4088-8c5c-1d83411397b9"],
+  "id": "4313d83c-224d-4f12-9899-64470c57cd6c",
+  "prevIds": ["8cfa308a-3bef-491c-84f9-4a8e3cc64273"],
   "ddl": [
     {
       "values": ["like", "love", "care", "funny", "sad"],
       "name": "reaction_type",
+      "entityType": "enums",
+      "schema": "public"
+    },
+    {
+      "values": ["active", "inactive", "deleted"],
+      "name": "user_status",
       "entityType": "enums",
       "schema": "public"
     },
@@ -25,6 +31,24 @@
     {
       "isRlsEnabled": false,
       "name": "comments",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "followers",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "hashtag_posts",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "hashtags",
       "entityType": "tables",
       "schema": "public"
     },
@@ -148,7 +172,7 @@
       "typeSchema": null,
       "notNull": false,
       "dimensions": 0,
-      "default": null,
+      "default": "now()",
       "generated": null,
       "identity": null,
       "name": "updated_at",
@@ -235,13 +259,126 @@
       "typeSchema": null,
       "notNull": false,
       "dimensions": 0,
-      "default": null,
+      "default": "now()",
       "generated": null,
       "identity": null,
       "name": "updated_at",
       "entityType": "columns",
       "schema": "public",
       "table": "comments"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "leader_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "followers"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "follower_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "followers"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "followers"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "post_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "hashtag_posts"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "hashtag_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "hashtag_posts"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": {
+        "type": "always",
+        "name": "hashtags_id_seq",
+        "increment": "1",
+        "startWith": "1",
+        "minValue": "1",
+        "maxValue": "2147483647",
+        "cache": 1,
+        "cycle": false
+      },
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "hashtags"
+    },
+    {
+      "type": "varchar(50)",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "title",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "hashtags"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "hashtags"
     },
     {
       "type": "integer",
@@ -277,7 +414,7 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "tag_x",
+      "name": "x",
       "entityType": "columns",
       "schema": "public",
       "table": "photo_tags"
@@ -290,7 +427,7 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "tag_y",
+      "name": "y",
       "entityType": "columns",
       "schema": "public",
       "table": "photo_tags"
@@ -313,7 +450,7 @@
       "typeSchema": null,
       "notNull": false,
       "dimensions": 0,
-      "default": null,
+      "default": "now()",
       "generated": null,
       "identity": null,
       "name": "updated_at",
@@ -378,7 +515,7 @@
       "typeSchema": null,
       "notNull": false,
       "dimensions": 0,
-      "default": null,
+      "default": "now()",
       "generated": null,
       "identity": null,
       "name": "updated_at",
@@ -491,7 +628,7 @@
       "typeSchema": null,
       "notNull": false,
       "dimensions": 0,
-      "default": null,
+      "default": "now()",
       "generated": null,
       "identity": null,
       "name": "updated_at",
@@ -535,6 +672,84 @@
       "table": "users"
     },
     {
+      "type": "varchar(400)",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "bio",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "users"
+    },
+    {
+      "type": "varchar(200)",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "avatar_url",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "users"
+    },
+    {
+      "type": "varchar(25)",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "phone_number",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "users"
+    },
+    {
+      "type": "varchar(40)",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "email",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "users"
+    },
+    {
+      "type": "varchar(50)",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "password",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "users"
+    },
+    {
+      "type": "user_status",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'active'",
+      "generated": null,
+      "identity": null,
+      "name": "status",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "users"
+    },
+    {
       "type": "timestamp",
       "typeSchema": null,
       "notNull": true,
@@ -552,7 +767,7 @@
       "typeSchema": null,
       "notNull": false,
       "dimensions": 0,
-      "default": null,
+      "default": "now()",
       "generated": null,
       "identity": null,
       "name": "updated_at",
@@ -601,6 +816,90 @@
       "entityType": "indexes",
       "schema": "public",
       "table": "caption_tags"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "follower_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "user_follows_follower_id_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "followers"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "leader_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "user_follows_user_id_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "followers"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "post_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "hashtag_posts_post_id_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "hashtag_posts"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "hashtag_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "hashtag_posts_hashtag_id_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "hashtag_posts"
     },
     {
       "nameExplicit": true,
@@ -745,6 +1044,58 @@
     },
     {
       "nameExplicit": false,
+      "columns": ["leader_id"],
+      "schemaTo": "public",
+      "tableTo": "users",
+      "columnsTo": ["id"],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "user_follows_following_id_users_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "followers"
+    },
+    {
+      "nameExplicit": false,
+      "columns": ["follower_id"],
+      "schemaTo": "public",
+      "tableTo": "users",
+      "columnsTo": ["id"],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "user_follows_follower_id_users_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "followers"
+    },
+    {
+      "nameExplicit": false,
+      "columns": ["post_id"],
+      "schemaTo": "public",
+      "tableTo": "posts",
+      "columnsTo": ["id"],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "hashtag_posts_post_id_posts_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "hashtag_posts"
+    },
+    {
+      "nameExplicit": false,
+      "columns": ["hashtag_id"],
+      "schemaTo": "public",
+      "tableTo": "hashtags",
+      "columnsTo": ["id"],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "hashtag_posts_hashtag_id_hashtags_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "hashtag_posts"
+    },
+    {
+      "nameExplicit": false,
       "columns": ["user_id"],
       "schemaTo": "public",
       "tableTo": "users",
@@ -825,6 +1176,22 @@
       "table": "comment_reactions"
     },
     {
+      "columns": ["follower_id", "leader_id"],
+      "nameExplicit": false,
+      "name": "user_follows_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "followers"
+    },
+    {
+      "columns": ["post_id", "hashtag_id"],
+      "nameExplicit": false,
+      "name": "hashtag_posts_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "hashtag_posts"
+    },
+    {
       "columns": ["post_id", "user_id"],
       "nameExplicit": false,
       "name": "photo_tags_pkey",
@@ -851,6 +1218,14 @@
     {
       "columns": ["id"],
       "nameExplicit": false,
+      "name": "hashtags_pkey",
+      "schema": "public",
+      "table": "hashtags",
+      "entityType": "pks"
+    },
+    {
+      "columns": ["id"],
+      "nameExplicit": false,
       "name": "posts_pkey",
       "schema": "public",
       "table": "posts",
@@ -866,6 +1241,15 @@
     },
     {
       "nameExplicit": false,
+      "columns": ["title"],
+      "nullsNotDistinct": false,
+      "name": "hashtags_title_key",
+      "schema": "public",
+      "table": "hashtags",
+      "entityType": "uniques"
+    },
+    {
+      "nameExplicit": false,
       "columns": ["username"],
       "nullsNotDistinct": false,
       "name": "users_username_key",
@@ -874,7 +1258,23 @@
       "entityType": "uniques"
     },
     {
-      "value": "\"tag_x\" BETWEEN 0 AND 1 AND \"tag_y\" BETWEEN 0 AND 1",
+      "nameExplicit": false,
+      "columns": ["email"],
+      "nullsNotDistinct": false,
+      "name": "users_email_key",
+      "schema": "public",
+      "table": "users",
+      "entityType": "uniques"
+    },
+    {
+      "value": "\"follower_id\" != \"leader_id\"",
+      "name": "user_follows_no_self_follow_chk",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "followers"
+    },
+    {
+      "value": "\"x\" BETWEEN 0 AND 1 AND \"y\" BETWEEN 0 AND 1",
       "name": "photo_tags_xy_chk",
       "entityType": "checks",
       "schema": "public",
@@ -886,6 +1286,13 @@
       "entityType": "checks",
       "schema": "public",
       "table": "posts"
+    },
+    {
+      "value": "coalesce(\"email\", \"phone_number\") IS NOT NULL",
+      "name": "users_email_or_phone_number_chk",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "users"
     }
   ],
   "renames": []

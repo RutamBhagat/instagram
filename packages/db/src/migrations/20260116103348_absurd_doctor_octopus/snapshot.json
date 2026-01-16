@@ -2,38 +2,22 @@
   "version": "8",
   "dialect": "postgres",
   "id": "a42324ff-e287-49e6-a146-88f7acb9c91c",
-  "prevIds": [
-    "c2cf1c0b-c0cc-4743-ada7-8a0411d7240d"
-  ],
+  "prevIds": ["c2cf1c0b-c0cc-4743-ada7-8a0411d7240d"],
   "ddl": [
     {
-      "values": [
-        "pending",
-        "accepted",
-        "rejected"
-      ],
+      "values": ["pending", "accepted", "rejected"],
       "name": "follow_request_status",
       "entityType": "enums",
       "schema": "public"
     },
     {
-      "values": [
-        "like",
-        "love",
-        "care",
-        "funny",
-        "sad"
-      ],
+      "values": ["like", "love", "care", "funny", "sad"],
       "name": "reaction_type",
       "entityType": "enums",
       "schema": "public"
     },
     {
-      "values": [
-        "active",
-        "inactive",
-        "deleted"
-      ],
+      "values": ["active", "inactive", "deleted"],
       "name": "user_status",
       "entityType": "enums",
       "schema": "public"
@@ -988,14 +972,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "schemaTo": "public",
       "tableTo": "users",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "caption_tags_user_id_users_id_fkey",
@@ -1005,14 +985,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "post_id"
-      ],
+      "columns": ["post_id"],
       "schemaTo": "public",
       "tableTo": "posts",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "caption_tags_post_id_posts_id_fkey",
@@ -1022,14 +998,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "comment_id"
-      ],
+      "columns": ["comment_id"],
       "schemaTo": "public",
       "tableTo": "comments",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "comment_reactions_comment_id_comments_id_fkey",
@@ -1039,14 +1011,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "schemaTo": "public",
       "tableTo": "users",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "comment_reactions_user_id_users_id_fkey",
@@ -1056,14 +1024,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "post_id"
-      ],
+      "columns": ["post_id"],
       "schemaTo": "public",
       "tableTo": "posts",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "comments_post_id_posts_id_fkey",
@@ -1073,14 +1037,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "schemaTo": "public",
       "tableTo": "users",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "comments_user_id_users_id_fkey",
@@ -1090,14 +1050,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "post_id"
-      ],
+      "columns": ["post_id"],
       "schemaTo": "public",
       "tableTo": "posts",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "hashtag_posts_post_id_posts_id_fkey",
@@ -1107,14 +1063,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "hashtag_id"
-      ],
+      "columns": ["hashtag_id"],
       "schemaTo": "public",
       "tableTo": "hashtags",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "hashtag_posts_hashtag_id_hashtags_id_fkey",
@@ -1124,14 +1076,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "schemaTo": "public",
       "tableTo": "users",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "photo_tags_user_id_users_id_fkey",
@@ -1141,14 +1089,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "post_id"
-      ],
+      "columns": ["post_id"],
       "schemaTo": "public",
       "tableTo": "posts",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "photo_tags_post_id_posts_id_fkey",
@@ -1158,14 +1102,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "post_id"
-      ],
+      "columns": ["post_id"],
       "schemaTo": "public",
       "tableTo": "posts",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "post_reactions_post_id_posts_id_fkey",
@@ -1175,14 +1115,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "schemaTo": "public",
       "tableTo": "users",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "post_reactions_user_id_users_id_fkey",
@@ -1192,14 +1128,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "schemaTo": "public",
       "tableTo": "users",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "posts_user_id_users_id_fkey",
@@ -1209,14 +1141,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "follower_id"
-      ],
+      "columns": ["follower_id"],
       "schemaTo": "public",
       "tableTo": "users",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "user_follows_follower_id_users_id_fkey",
@@ -1226,14 +1154,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "following_id"
-      ],
+      "columns": ["following_id"],
       "schemaTo": "public",
       "tableTo": "users",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "user_follows_following_id_users_id_fkey",
@@ -1242,10 +1166,7 @@
       "table": "user_follows"
     },
     {
-      "columns": [
-        "post_id",
-        "user_id"
-      ],
+      "columns": ["post_id", "user_id"],
       "nameExplicit": false,
       "name": "caption_tags_pkey",
       "entityType": "pks",
@@ -1253,10 +1174,7 @@
       "table": "caption_tags"
     },
     {
-      "columns": [
-        "comment_id",
-        "user_id"
-      ],
+      "columns": ["comment_id", "user_id"],
       "nameExplicit": false,
       "name": "comment_reactions_pkey",
       "entityType": "pks",
@@ -1264,10 +1182,7 @@
       "table": "comment_reactions"
     },
     {
-      "columns": [
-        "post_id",
-        "hashtag_id"
-      ],
+      "columns": ["post_id", "hashtag_id"],
       "nameExplicit": false,
       "name": "hashtag_posts_pkey",
       "entityType": "pks",
@@ -1275,10 +1190,7 @@
       "table": "hashtag_posts"
     },
     {
-      "columns": [
-        "post_id",
-        "user_id"
-      ],
+      "columns": ["post_id", "user_id"],
       "nameExplicit": false,
       "name": "photo_tags_pkey",
       "entityType": "pks",
@@ -1286,10 +1198,7 @@
       "table": "photo_tags"
     },
     {
-      "columns": [
-        "post_id",
-        "user_id"
-      ],
+      "columns": ["post_id", "user_id"],
       "nameExplicit": false,
       "name": "post_reactions_pkey",
       "entityType": "pks",
@@ -1297,10 +1206,7 @@
       "table": "post_reactions"
     },
     {
-      "columns": [
-        "follower_id",
-        "following_id"
-      ],
+      "columns": ["follower_id", "following_id"],
       "nameExplicit": false,
       "name": "user_follows_pkey",
       "entityType": "pks",
@@ -1308,9 +1214,7 @@
       "table": "user_follows"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "comments_pkey",
       "schema": "public",
@@ -1318,9 +1222,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "hashtags_pkey",
       "schema": "public",
@@ -1328,9 +1230,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "posts_pkey",
       "schema": "public",
@@ -1338,9 +1238,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "users_pkey",
       "schema": "public",
@@ -1349,9 +1247,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "title"
-      ],
+      "columns": ["title"],
       "nullsNotDistinct": false,
       "name": "hashtags_title_key",
       "schema": "public",
@@ -1360,9 +1256,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "username"
-      ],
+      "columns": ["username"],
       "nullsNotDistinct": false,
       "name": "users_username_key",
       "schema": "public",
@@ -1371,9 +1265,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "email"
-      ],
+      "columns": ["email"],
       "nullsNotDistinct": false,
       "name": "users_email_key",
       "schema": "public",

@@ -1,8 +1,6 @@
 {
   "id": "b2c3cdf3-adbe-44d3-9096-6972ccdbd71b",
-  "prevIds": [
-    "dc027620-2a84-4366-9037-932bbfc67810"
-  ],
+  "prevIds": ["dc027620-2a84-4366-9037-932bbfc67810"],
   "version": "8",
   "dialect": "postgres",
   "ddl": [
@@ -261,14 +259,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "post_id"
-      ],
+      "columns": ["post_id"],
       "schemaTo": "public",
       "tableTo": "posts",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "comments_post_id_posts_id_fkey",
@@ -278,14 +272,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "schemaTo": "public",
       "tableTo": "users",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "comments_user_id_users_id_fkey",
@@ -295,14 +285,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "user_id"
-      ],
+      "columns": ["user_id"],
       "schemaTo": "public",
       "tableTo": "users",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "posts_user_id_users_id_fkey",
@@ -311,9 +297,7 @@
       "table": "posts"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "comments_pkey",
       "schema": "public",
@@ -321,9 +305,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "posts_pkey",
       "schema": "public",
@@ -331,9 +313,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "users_pkey",
       "schema": "public",
@@ -342,9 +322,7 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "username"
-      ],
+      "columns": ["username"],
       "nullsNotDistinct": false,
       "name": "users_username_key",
       "schema": "public",

@@ -1,12 +1,12 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "4b67b5a3-c372-4b60-99d0-6b65e578f152",
-  "prevIds": ["a77539c6-f5d9-4088-8c5c-1d83411397b9"],
+  "id": "9b8c95c7-2d9b-4127-a062-a1068b897f71",
+  "prevIds": ["72db1106-ac4f-4070-8380-5bbe39eabfc6"],
   "ddl": [
     {
-      "values": ["like", "love", "care", "funny", "sad"],
-      "name": "reaction_type",
+      "values": ["active", "inactive", "deleted"],
+      "name": "user_status",
       "entityType": "enums",
       "schema": "public"
     },
@@ -18,7 +18,7 @@
     },
     {
       "isRlsEnabled": false,
-      "name": "comment_reactions",
+      "name": "comment_likes",
       "entityType": "tables",
       "schema": "public"
     },
@@ -30,13 +30,31 @@
     },
     {
       "isRlsEnabled": false,
+      "name": "followers",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "hashtag_posts",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "hashtags",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
       "name": "photo_tags",
       "entityType": "tables",
       "schema": "public"
     },
     {
       "isRlsEnabled": false,
-      "name": "post_reactions",
+      "name": "post_likes",
       "entityType": "tables",
       "schema": "public"
     },
@@ -92,19 +110,6 @@
       "table": "caption_tags"
     },
     {
-      "type": "reaction_type",
-      "typeSchema": "public",
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'like'",
-      "generated": null,
-      "identity": null,
-      "name": "type",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "comment_reactions"
-    },
-    {
       "type": "integer",
       "typeSchema": null,
       "notNull": true,
@@ -115,7 +120,7 @@
       "name": "comment_id",
       "entityType": "columns",
       "schema": "public",
-      "table": "comment_reactions"
+      "table": "comment_likes"
     },
     {
       "type": "integer",
@@ -128,7 +133,7 @@
       "name": "user_id",
       "entityType": "columns",
       "schema": "public",
-      "table": "comment_reactions"
+      "table": "comment_likes"
     },
     {
       "type": "timestamp",
@@ -141,20 +146,20 @@
       "name": "created_at",
       "entityType": "columns",
       "schema": "public",
-      "table": "comment_reactions"
+      "table": "comment_likes"
     },
     {
       "type": "timestamp",
       "typeSchema": null,
       "notNull": false,
       "dimensions": 0,
-      "default": null,
+      "default": "now()",
       "generated": null,
       "identity": null,
       "name": "updated_at",
       "entityType": "columns",
       "schema": "public",
-      "table": "comment_reactions"
+      "table": "comment_likes"
     },
     {
       "type": "integer",
@@ -194,12 +199,12 @@
     {
       "type": "integer",
       "typeSchema": null,
-      "notNull": false,
+      "notNull": true,
       "dimensions": 0,
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "post_id",
+      "name": "user_id",
       "entityType": "columns",
       "schema": "public",
       "table": "comments"
@@ -207,12 +212,12 @@
     {
       "type": "integer",
       "typeSchema": null,
-      "notNull": false,
+      "notNull": true,
       "dimensions": 0,
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "user_id",
+      "name": "post_id",
       "entityType": "columns",
       "schema": "public",
       "table": "comments"
@@ -235,13 +240,126 @@
       "typeSchema": null,
       "notNull": false,
       "dimensions": 0,
-      "default": null,
+      "default": "now()",
       "generated": null,
       "identity": null,
       "name": "updated_at",
       "entityType": "columns",
       "schema": "public",
       "table": "comments"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "leader_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "followers"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "follower_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "followers"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "followers"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "post_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "hashtag_posts"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "hashtag_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "hashtag_posts"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": {
+        "type": "always",
+        "name": "hashtags_id_seq",
+        "increment": "1",
+        "startWith": "1",
+        "minValue": "1",
+        "maxValue": "2147483647",
+        "cache": 1,
+        "cycle": false
+      },
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "hashtags"
+    },
+    {
+      "type": "varchar(50)",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "title",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "hashtags"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "hashtags"
     },
     {
       "type": "integer",
@@ -277,7 +395,7 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "tag_x",
+      "name": "x",
       "entityType": "columns",
       "schema": "public",
       "table": "photo_tags"
@@ -290,7 +408,7 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "tag_y",
+      "name": "y",
       "entityType": "columns",
       "schema": "public",
       "table": "photo_tags"
@@ -313,26 +431,13 @@
       "typeSchema": null,
       "notNull": false,
       "dimensions": 0,
-      "default": null,
+      "default": "now()",
       "generated": null,
       "identity": null,
       "name": "updated_at",
       "entityType": "columns",
       "schema": "public",
       "table": "photo_tags"
-    },
-    {
-      "type": "reaction_type",
-      "typeSchema": "public",
-      "notNull": true,
-      "dimensions": 0,
-      "default": "'like'",
-      "generated": null,
-      "identity": null,
-      "name": "type",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "post_reactions"
     },
     {
       "type": "integer",
@@ -345,7 +450,7 @@
       "name": "post_id",
       "entityType": "columns",
       "schema": "public",
-      "table": "post_reactions"
+      "table": "post_likes"
     },
     {
       "type": "integer",
@@ -358,7 +463,7 @@
       "name": "user_id",
       "entityType": "columns",
       "schema": "public",
-      "table": "post_reactions"
+      "table": "post_likes"
     },
     {
       "type": "timestamp",
@@ -371,20 +476,20 @@
       "name": "created_at",
       "entityType": "columns",
       "schema": "public",
-      "table": "post_reactions"
+      "table": "post_likes"
     },
     {
       "type": "timestamp",
       "typeSchema": null,
       "notNull": false,
       "dimensions": 0,
-      "default": null,
+      "default": "now()",
       "generated": null,
       "identity": null,
       "name": "updated_at",
       "entityType": "columns",
       "schema": "public",
-      "table": "post_reactions"
+      "table": "post_likes"
     },
     {
       "type": "integer",
@@ -463,7 +568,7 @@
     {
       "type": "integer",
       "typeSchema": null,
-      "notNull": false,
+      "notNull": true,
       "dimensions": 0,
       "default": null,
       "generated": null,
@@ -491,7 +596,7 @@
       "typeSchema": null,
       "notNull": false,
       "dimensions": 0,
-      "default": null,
+      "default": "now()",
       "generated": null,
       "identity": null,
       "name": "updated_at",
@@ -535,6 +640,84 @@
       "table": "users"
     },
     {
+      "type": "varchar(400)",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "bio",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "users"
+    },
+    {
+      "type": "varchar(200)",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "avatar_url",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "users"
+    },
+    {
+      "type": "varchar(25)",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "phone_number",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "users"
+    },
+    {
+      "type": "varchar(40)",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "email",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "users"
+    },
+    {
+      "type": "varchar(255)",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "password",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "users"
+    },
+    {
+      "type": "user_status",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'active'",
+      "generated": null,
+      "identity": null,
+      "name": "status",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "users"
+    },
+    {
       "type": "timestamp",
       "typeSchema": null,
       "notNull": true,
@@ -552,7 +735,7 @@
       "typeSchema": null,
       "notNull": false,
       "dimensions": 0,
-      "default": null,
+      "default": "now()",
       "generated": null,
       "identity": null,
       "name": "updated_at",
@@ -601,6 +784,90 @@
       "entityType": "indexes",
       "schema": "public",
       "table": "caption_tags"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "follower_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "user_follows_follower_id_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "followers"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "leader_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "user_follows_user_id_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "followers"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "post_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "hashtag_posts_post_id_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "hashtag_posts"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "hashtag_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "hashtag_posts_hashtag_id_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "hashtag_posts"
     },
     {
       "nameExplicit": true,
@@ -702,7 +969,7 @@
       "name": "comment_reactions_comment_id_comments_id_fkey",
       "entityType": "fks",
       "schema": "public",
-      "table": "comment_reactions"
+      "table": "comment_likes"
     },
     {
       "nameExplicit": false,
@@ -715,7 +982,20 @@
       "name": "comment_reactions_user_id_users_id_fkey",
       "entityType": "fks",
       "schema": "public",
-      "table": "comment_reactions"
+      "table": "comment_likes"
+    },
+    {
+      "nameExplicit": false,
+      "columns": ["user_id"],
+      "schemaTo": "public",
+      "tableTo": "users",
+      "columnsTo": ["id"],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "comments_user_id_users_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "comments"
     },
     {
       "nameExplicit": false,
@@ -732,16 +1012,55 @@
     },
     {
       "nameExplicit": false,
-      "columns": ["user_id"],
+      "columns": ["leader_id"],
       "schemaTo": "public",
       "tableTo": "users",
       "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
-      "name": "comments_user_id_users_id_fkey",
+      "name": "user_follows_following_id_users_id_fkey",
       "entityType": "fks",
       "schema": "public",
-      "table": "comments"
+      "table": "followers"
+    },
+    {
+      "nameExplicit": false,
+      "columns": ["follower_id"],
+      "schemaTo": "public",
+      "tableTo": "users",
+      "columnsTo": ["id"],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "user_follows_follower_id_users_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "followers"
+    },
+    {
+      "nameExplicit": false,
+      "columns": ["post_id"],
+      "schemaTo": "public",
+      "tableTo": "posts",
+      "columnsTo": ["id"],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "hashtag_posts_post_id_posts_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "hashtag_posts"
+    },
+    {
+      "nameExplicit": false,
+      "columns": ["hashtag_id"],
+      "schemaTo": "public",
+      "tableTo": "hashtags",
+      "columnsTo": ["id"],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "hashtag_posts_hashtag_id_hashtags_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "hashtag_posts"
     },
     {
       "nameExplicit": false,
@@ -780,7 +1099,7 @@
       "name": "post_reactions_post_id_posts_id_fkey",
       "entityType": "fks",
       "schema": "public",
-      "table": "post_reactions"
+      "table": "post_likes"
     },
     {
       "nameExplicit": false,
@@ -793,7 +1112,7 @@
       "name": "post_reactions_user_id_users_id_fkey",
       "entityType": "fks",
       "schema": "public",
-      "table": "post_reactions"
+      "table": "post_likes"
     },
     {
       "nameExplicit": false,
@@ -822,7 +1141,23 @@
       "name": "comment_reactions_pkey",
       "entityType": "pks",
       "schema": "public",
-      "table": "comment_reactions"
+      "table": "comment_likes"
+    },
+    {
+      "columns": ["follower_id", "leader_id"],
+      "nameExplicit": false,
+      "name": "user_follows_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "followers"
+    },
+    {
+      "columns": ["post_id", "hashtag_id"],
+      "nameExplicit": false,
+      "name": "hashtag_posts_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "hashtag_posts"
     },
     {
       "columns": ["post_id", "user_id"],
@@ -838,7 +1173,7 @@
       "name": "post_reactions_pkey",
       "entityType": "pks",
       "schema": "public",
-      "table": "post_reactions"
+      "table": "post_likes"
     },
     {
       "columns": ["id"],
@@ -846,6 +1181,14 @@
       "name": "comments_pkey",
       "schema": "public",
       "table": "comments",
+      "entityType": "pks"
+    },
+    {
+      "columns": ["id"],
+      "nameExplicit": false,
+      "name": "hashtags_pkey",
+      "schema": "public",
+      "table": "hashtags",
       "entityType": "pks"
     },
     {
@@ -866,6 +1209,15 @@
     },
     {
       "nameExplicit": false,
+      "columns": ["title"],
+      "nullsNotDistinct": false,
+      "name": "hashtags_title_key",
+      "schema": "public",
+      "table": "hashtags",
+      "entityType": "uniques"
+    },
+    {
+      "nameExplicit": false,
       "columns": ["username"],
       "nullsNotDistinct": false,
       "name": "users_username_key",
@@ -874,7 +1226,23 @@
       "entityType": "uniques"
     },
     {
-      "value": "\"tag_x\" BETWEEN 0 AND 1 AND \"tag_y\" BETWEEN 0 AND 1",
+      "nameExplicit": false,
+      "columns": ["email"],
+      "nullsNotDistinct": false,
+      "name": "users_email_key",
+      "schema": "public",
+      "table": "users",
+      "entityType": "uniques"
+    },
+    {
+      "value": "\"follower_id\" != \"leader_id\"",
+      "name": "user_follows_no_self_follow_chk",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "followers"
+    },
+    {
+      "value": "\"x\" BETWEEN 0 AND 1 AND \"y\" BETWEEN 0 AND 1",
       "name": "photo_tags_xy_chk",
       "entityType": "checks",
       "schema": "public",
@@ -886,7 +1254,17 @@
       "entityType": "checks",
       "schema": "public",
       "table": "posts"
+    },
+    {
+      "value": "coalesce(\"email\", \"phone_number\") IS NOT NULL",
+      "name": "users_email_or_phone_number_chk",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "users"
     }
   ],
-  "renames": []
+  "renames": [
+    "public.comment_reactions->public.comment_likes",
+    "public.post_reactions->public.post_likes"
+  ]
 }
