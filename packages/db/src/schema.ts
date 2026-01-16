@@ -62,8 +62,8 @@ export const followersTable = pgTable(
     createdAt: timestamp().notNull().defaultNow(),
   },
   (table) => [
-    index("user_follows_follower_id_idx").on(table.followerId),
-    index("user_follows_user_id_idx").on(table.leaderId),
+    index().on(table.followerId),
+    index().on(table.leaderId),
     primaryKey({ columns: [table.followerId, table.leaderId] }),
     check(
       "user_follows_no_self_follow_chk",
@@ -86,7 +86,7 @@ export const postsTable = pgTable(
     ...timestamps,
   },
   (table) => [
-    index("posts_location_gist").using("gist", table.location),
+    index().using("gist", table.location),
     check(
       "posts_location_lon_lat_chk",
       sql`ST_SRID(${table.location}) = 4326 AND ST_X(${table.location}) BETWEEN -180 AND 180 AND ST_Y(${table.location}) BETWEEN -90 AND 90`
@@ -113,8 +113,8 @@ export const hashtagsPostsTable = pgTable(
       }),
   },
   (table) => [
-    index("hashtag_posts_post_id_idx").on(table.postId),
-    index("hashtag_posts_hashtag_id_idx").on(table.hashtagId),
+    index().on(table.postId),
+    index().on(table.hashtagId),
     primaryKey({ columns: [table.postId, table.hashtagId] }),
   ]
 );
@@ -133,8 +133,8 @@ export const photoTagsTable = pgTable(
     ...timestamps,
   },
   (table) => [
-    index("photo_tags_post_id_idx").on(table.postId),
-    index("photo_tags_user_id_idx").on(table.userId),
+    index().on(table.postId),
+    index().on(table.userId),
     check(
       "photo_tags_xy_chk",
       sql`${table.x} BETWEEN 0 AND 1 AND ${table.y} BETWEEN 0 AND 1`
@@ -155,8 +155,8 @@ export const captionTagsTable = pgTable(
     createdAt: timestamp().notNull().defaultNow(),
   },
   (table) => [
-    index("caption_tags_post_id_idx").on(table.postId),
-    index("caption_tags_user_id_idx").on(table.userId),
+    index().on(table.postId),
+    index().on(table.userId),
     primaryKey({ columns: [table.postId, table.userId] }),
   ]
 );
