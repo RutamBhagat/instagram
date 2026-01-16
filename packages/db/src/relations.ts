@@ -9,11 +9,11 @@ export const relations = defineRelations(schema, (r) => ({
     commentReactions: r.many.commentReactionsTable(),
     photoTags: r.many.photoTagsTable(),
     captionTags: r.many.captionTagsTable(),
-    following: r.many.followersTable({
+    following: r.many.usersTable({
       from: r.usersTable.id.through(r.followersTable.followerId),
       to: r.usersTable.id.through(r.followersTable.leaderId),
     }),
-    followers: r.many.followersTable({
+    followers: r.many.usersTable({
       from: r.usersTable.id.through(r.followersTable.leaderId),
       to: r.usersTable.id.through(r.followersTable.followerId),
     }),
@@ -25,7 +25,6 @@ export const relations = defineRelations(schema, (r) => ({
     }),
     comments: r.many.commentsTable(),
     postReactions: r.many.postReactionsTable(),
-    commentReactions: r.many.commentReactionsTable(),
     photoTags: r.many.photoTagsTable(),
     captionTags: r.many.captionTagsTable(),
     hashtags: r.many.hashtagsTable({
@@ -42,6 +41,7 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.commentsTable.userId,
       to: r.usersTable.id,
     }),
+    commentReactions: r.many.commentReactionsTable(),
   },
   postReactionsTable: {
     post: r.one.postsTable({
