@@ -26,28 +26,33 @@ export const userStatusEnum = pgEnum("user_status", [
   "deleted",
 ]);
 
-export const followRequestStatusEnum = pgEnum("follow_request_status", [
-  "pending",
-  "accepted",
-  "rejected",
-]);
-
 const timestamps = {
   createdAt: timestamp().notNull().defaultNow(),
-  updatedAt: timestamp().$onUpdate(() => new Date()),
+  updatedAt: timestamp()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 };
 
-export const usersTable = pgTable("users", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  username: varchar({ length: 30 }).notNull().unique(),
-  bio: varchar({ length: 400 }),
-  avatarUrl: varchar(),
-  phoneNumber: varchar({ length: 25 }),
-  email: varchar({ length: 255 }).notNull().unique(),
-  password: varchar({ length: 255 }).notNull(),
-  status: userStatusEnum().notNull().default("active"),
-  ...timestamps,
-});
+export const usersTable = pgTable(
+  "users",
+  {
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    username: varchar({ length: 30 }).notNull().unique(),
+    bio: varchar({ length: 400 }),
+    avatarUrl: varchar({ length: 200 }),
+    phoneNumber: varchar({ length: 25 }),
+    email: varchar({ length: 40 }).unique(),
+    password: varchar({ length: 255 }).notNull(),
+    status: userStatusEnum().notNull().default("active"),
+    ...timestamps,
+  },
+  (table) => [
+    check(
+      "users_email_or_phone_number_chk",
+      sql`coalesce(${table.email}, ${table.phoneNumber}) IS NOT NULL`
+    ),
+  ]
+);
 
 export const followersTable = pgTable(
   "followers",
