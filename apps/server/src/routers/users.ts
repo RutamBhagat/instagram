@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { db, desc, eq, sql } from "@instagram/db";
+import { countDistinct, db, desc, eq, sql } from "@instagram/db";
 import { commentLikesTable, postLikesTable, usersTable } from "@instagram/db/schema";
 
 export const usersRouter = new Hono();
@@ -96,15 +96,16 @@ usersRouter.get("/users-with-number-of-likes", async(c) => {
     try {
         const users = await db.select({
             username: usersTable.username,
-            postLikes: sql<number>`COUNT(${postLikesTable.userId})`.as("postLikes"),
-            commentLikes: sql<number>`COUNT(${commentLikesTable.userId})`.as("commentLikes"),
-            numberOfLikes: sql<number>`COUNT(${postLikesTable.userId}) + COUNT(${commentLikesTable.userId})`.as("numberOfLikes"),
+            postLikes: countDistinct(postLikesTable.postId).as("postLikes"),
+            commentLikes: countDistinct(commentLikesTable.commentId).as("commentLikes"),
+            numberOfLikes: sql<number>`(${countDistinct(postLikesTable.postId)} + ${countDistinct(commentLikesTable.commentId)})::int`.as("numberOfLikes"),
         })
         .from(usersTable)
         .leftJoin(postLikesTable, eq(usersTable.id, postLikesTable.userId))
         .leftJoin(commentLikesTable, eq(usersTable.id, commentLikesTable.userId))
         .groupBy(usersTable.id)
-        .orderBy(desc(sql<number>`COUNT(${postLikesTable.userId}) + COUNT(${commentLikesTable.userId})`.as("numberOfLikes")))
+        .orderBy(desc(sql<number>`(${countDistinct(postLikesTable.postId)} + ${countDistinct(commentLikesTable.commentId)})::int`.as("numberOfLikes")));
+
 
         if (users.length === 0) {
             return c.json({
