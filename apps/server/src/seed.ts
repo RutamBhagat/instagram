@@ -3,7 +3,7 @@ import { db } from "@instagram/db";
 import * as schema from "@instagram/db/schema";
 import { sql } from "@instagram/db/index";
 
-const shown = {
+const seedConfig = {
   users: 5345,
   postsPerUserMin: 2,
   postsPerUserMax: 6,
@@ -23,6 +23,11 @@ type UserRow = typeof schema.usersTable.$inferSelect;
 type PostRow = typeof schema.postsTable.$inferSelect;
 type HashtagRow = typeof schema.hashtagsTable.$inferSelect;
 type CommentRow = typeof schema.commentsTable.$inferSelect;
+
+function timeStep<T>(label: string, fn: () => Promise<T>) {
+  console.time(label);
+  return fn().finally(() => console.timeEnd(label));
+}
 
 function chunkArray<T>(items: T[], size: number) {
   if (size <= 0) return [items];
@@ -66,6 +71,29 @@ async function insertInChunks<T>(table: unknown, rows: T[], label?: string) {
   }
 }
 
+function buildUniquePairs<TEntry>(
+  sourceIds: number[],
+  getTargets: (sourceId: number) => number[],
+  maxPerSource: number,
+  makeEntry: (sourceId: number, targetId: number) => TEntry,
+) {
+  const entries: TEntry[] = [];
+  const seen = new Set<string>();
+
+  for (const sourceId of sourceIds) {
+    const count = faker.number.int({ min: 0, max: maxPerSource });
+    const picked = faker.helpers.arrayElements(getTargets(sourceId), count);
+    for (const targetId of picked) {
+      const key = `${sourceId}:${targetId}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      entries.push(makeEntry(sourceId, targetId));
+    }
+  }
+
+  return entries;
+}
+
 function makeUsername(index: number) {
   const base = faker.internet
     .username()
@@ -102,7 +130,7 @@ async function clearTables() {
 }
 
 async function seedUsers() {
-  const users = Array.from({ length: shown.users }, (_, index) => {
+  const users = Array.from({ length: seedConfig.users }, (_, index) => {
     const username = makeUsername(index + 1);
     const status = faker.helpers.arrayElement(["active", "active", "active", "inactive"] as const);
 
@@ -123,8 +151,8 @@ async function seedUsers() {
 async function seedPosts(userIds: number[]) {
   const posts = userIds.flatMap((userId) => {
     const count = faker.number.int({
-      min: shown.postsPerUserMin,
-      max: shown.postsPerUserMax,
+      min: seedConfig.postsPerUserMin,
+      max: seedConfig.postsPerUserMax,
     });
 
     return Array.from({ length: count }, () => {
@@ -151,7 +179,7 @@ async function seedPosts(userIds: number[]) {
 
 async function seedHashtags() {
   const tags: { title: string }[] = Array.from(
-    { length: shown.hashtags },
+    { length: seedConfig.hashtags },
     (_, index) => ({ title: makeHashtag(index + 1) }),
   );
 
@@ -159,19 +187,12 @@ async function seedHashtags() {
 }
 
 async function seedHashtagPosts(postIds: number[], hashtagIds: number[]) {
-  const entries: { postId: number; hashtagId: number }[] = [];
-  const seen = new Set<string>();
-
-  for (const postId of postIds) {
-    const count = faker.number.int({ min: 0, max: shown.maxHashtagsPerPost });
-    const picked = faker.helpers.arrayElements(hashtagIds, count);
-    for (const hashtagId of picked) {
-      const key = `${postId}:${hashtagId}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      entries.push({ postId, hashtagId });
-    }
-  }
+  const entries = buildUniquePairs(
+    postIds,
+    () => hashtagIds,
+    seedConfig.maxHashtagsPerPost,
+    (postId, hashtagId) => ({ postId, hashtagId }),
+  );
 
   if (entries.length) {
     await insertInChunks(schema.hashtagsPostsTable, entries, "hashtags_posts");
@@ -179,20 +200,12 @@ async function seedHashtagPosts(postIds: number[], hashtagIds: number[]) {
 }
 
 async function seedFollowers(userIds: number[]) {
-  const entries: { followerId: number; leaderId: number }[] = [];
-  const seen = new Set<string>();
-
-  for (const followerId of userIds) {
-    const count = faker.number.int({ min: 0, max: shown.maxFollowersPerUser });
-    const candidates = userIds.filter((id) => id !== followerId);
-    const picked = faker.helpers.arrayElements(candidates, count);
-    for (const leaderId of picked) {
-      const key = `${followerId}:${leaderId}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      entries.push({ followerId, leaderId });
-    }
-  }
+  const entries = buildUniquePairs(
+    userIds,
+    (followerId) => userIds.filter((id) => id !== followerId),
+    seedConfig.maxFollowersPerUser,
+    (followerId, leaderId) => ({ followerId, leaderId }),
+  );
 
   if (entries.length) {
     await insertInChunks(schema.followersTable, entries, "followers");
@@ -203,7 +216,7 @@ async function seedComments(userIds: number[], postIds: number[]) {
   const entries: { contents: string; postId: number; userId: number }[] = [];
 
   for (const postId of postIds) {
-    const count = faker.number.int({ min: 0, max: shown.maxCommentsPerPost });
+    const count = faker.number.int({ min: 0, max: seedConfig.maxCommentsPerPost });
     for (let i = 0; i < count; i += 1) {
       const userId = faker.helpers.arrayElement(userIds);
       entries.push({
@@ -220,25 +233,17 @@ async function seedComments(userIds: number[], postIds: number[]) {
 }
 
 async function seedPhotoTags(userIds: number[], postIds: number[]) {
-  const entries: { userId: number; postId: number; x: number; y: number }[] = [];
-  const seen = new Set<string>();
-
-  for (const postId of postIds) {
-    const count = faker.number.int({ min: 0, max: shown.maxPhotoTagsPerPost });
-    const pickedUsers = faker.helpers.arrayElements(userIds, count);
-
-    for (const userId of pickedUsers) {
-      const key = `${postId}:${userId}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      entries.push({
-        userId,
-        postId,
-        x: faker.number.float({ min: 0, max: 1, fractionDigits: 3 }),
-        y: faker.number.float({ min: 0, max: 1, fractionDigits: 3 }),
-      });
-    }
-  }
+  const entries = buildUniquePairs(
+    postIds,
+    () => userIds,
+    seedConfig.maxPhotoTagsPerPost,
+    (postId, userId) => ({
+      userId,
+      postId,
+      x: faker.number.float({ min: 0, max: 1, fractionDigits: 3 }),
+      y: faker.number.float({ min: 0, max: 1, fractionDigits: 3 }),
+    }),
+  );
 
   if (entries.length) {
     await insertInChunks(schema.photoTagsTable, entries, "photo_tags");
@@ -246,23 +251,12 @@ async function seedPhotoTags(userIds: number[], postIds: number[]) {
 }
 
 async function seedCaptionTags(userIds: number[], postIds: number[]) {
-  const entries: { userId: number; postId: number }[] = [];
-  const seen = new Set<string>();
-
-  for (const postId of postIds) {
-    const count = faker.number.int({
-      min: 0,
-      max: shown.maxCaptionTagsPerPost,
-    });
-    const pickedUsers = faker.helpers.arrayElements(userIds, count);
-
-    for (const userId of pickedUsers) {
-      const key = `${postId}:${userId}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      entries.push({ userId, postId });
-    }
-  }
+  const entries = buildUniquePairs(
+    postIds,
+    () => userIds,
+    seedConfig.maxCaptionTagsPerPost,
+    (postId, userId) => ({ userId, postId }),
+  );
 
   if (entries.length) {
     await insertInChunks(schema.captionTagsTable, entries, "caption_tags");
@@ -270,20 +264,12 @@ async function seedCaptionTags(userIds: number[], postIds: number[]) {
 }
 
 async function seedPostLikes(userIds: number[], postIds: number[]) {
-  const entries: { postId: number; userId: number }[] = [];
-  const seen = new Set<string>();
-
-  for (const postId of postIds) {
-    const count = faker.number.int({ min: 0, max: shown.maxLikesPerPost });
-    const pickedUsers = faker.helpers.arrayElements(userIds, count);
-
-    for (const userId of pickedUsers) {
-      const key = `${postId}:${userId}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      entries.push({ postId, userId });
-    }
-  }
+  const entries = buildUniquePairs(
+    postIds,
+    () => userIds,
+    seedConfig.maxLikesPerPost,
+    (postId, userId) => ({ postId, userId }),
+  );
 
   if (entries.length) {
     await insertInChunks(schema.postLikesTable, entries, "post_likes");
@@ -291,23 +277,12 @@ async function seedPostLikes(userIds: number[], postIds: number[]) {
 }
 
 async function seedCommentLikes(userIds: number[], commentIds: number[]) {
-  const entries: { commentId: number; userId: number }[] = [];
-  const seen = new Set<string>();
-
-  for (const commentId of commentIds) {
-    const count = faker.number.int({
-      min: 0,
-      max: shown.maxLikesPerComment,
-    });
-    const pickedUsers = faker.helpers.arrayElements(userIds, count);
-
-    for (const userId of pickedUsers) {
-      const key = `${commentId}:${userId}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      entries.push({ commentId, userId });
-    }
-  }
+  const entries = buildUniquePairs(
+    commentIds,
+    () => userIds,
+    seedConfig.maxLikesPerComment,
+    (commentId, userId) => ({ commentId, userId }),
+  );
 
   if (entries.length) {
     await insertInChunks(schema.commentLikesTable, entries, "comment_likes");
@@ -321,45 +296,25 @@ async function main() {
 
   await clearTables();
 
-  console.time("seed:users");
-  const users = await seedUsers();
-  console.timeEnd("seed:users");
+  const users = await timeStep("seed:users", seedUsers);
   const userIds = users.map((user) => user.id);
 
-  console.time("seed:posts");
-  const posts = await seedPosts(userIds);
-  console.timeEnd("seed:posts");
+  const posts = await timeStep("seed:posts", () => seedPosts(userIds));
   const postIds = posts.map((post) => post.id);
 
-  console.time("seed:hashtags");
-  const hashtags = await seedHashtags();
-  console.timeEnd("seed:hashtags");
+  const hashtags = await timeStep("seed:hashtags", seedHashtags);
   const hashtagIds = hashtags.map((tag) => tag.id);
 
-  console.time("seed:hashtagsPosts");
-  await seedHashtagPosts(postIds, hashtagIds);
-  console.timeEnd("seed:hashtagsPosts");
-  console.time("seed:followers");
-  await seedFollowers(userIds);
-  console.timeEnd("seed:followers");
+  await timeStep("seed:hashtagsPosts", () => seedHashtagPosts(postIds, hashtagIds));
+  await timeStep("seed:followers", () => seedFollowers(userIds));
 
-  console.time("seed:comments");
-  const comments = await seedComments(userIds, postIds);
-  console.timeEnd("seed:comments");
+  const comments = await timeStep("seed:comments", () => seedComments(userIds, postIds));
   const commentIds = comments.map((comment) => comment.id);
 
-  console.time("seed:photoTags");
-  await seedPhotoTags(userIds, postIds);
-  console.timeEnd("seed:photoTags");
-  console.time("seed:captionTags");
-  await seedCaptionTags(userIds, postIds);
-  console.timeEnd("seed:captionTags");
-  console.time("seed:postLikes");
-  await seedPostLikes(userIds, postIds);
-  console.timeEnd("seed:postLikes");
-  console.time("seed:commentLikes");
-  await seedCommentLikes(userIds, commentIds);
-  console.timeEnd("seed:commentLikes");
+  await timeStep("seed:photoTags", () => seedPhotoTags(userIds, postIds));
+  await timeStep("seed:captionTags", () => seedCaptionTags(userIds, postIds));
+  await timeStep("seed:postLikes", () => seedPostLikes(userIds, postIds));
+  await timeStep("seed:commentLikes", () => seedCommentLikes(userIds, commentIds));
 
   console.log(
     `Seeded ${userIds.length} users, ${postIds.length} posts, ${commentIds.length} comments.`,
