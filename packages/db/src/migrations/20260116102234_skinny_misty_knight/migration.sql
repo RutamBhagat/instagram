@@ -1,4 +1,8 @@
-CREATE TYPE "user_status" AS ENUM('active', 'inactive', 'deleted');--> statement-breakpoint
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_status') THEN
+    CREATE TYPE "user_status" AS ENUM('active', 'inactive', 'deleted');
+  END IF;
+END $$;--> statement-breakpoint
 ALTER TABLE "users" ADD COLUMN "bio" varchar(400);--> statement-breakpoint
 ALTER TABLE "users" ADD COLUMN "avatar_url" varchar;--> statement-breakpoint
 ALTER TABLE "users" ADD COLUMN "phone_number" varchar(25);--> statement-breakpoint

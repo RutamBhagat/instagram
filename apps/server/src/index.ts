@@ -2,6 +2,7 @@ import { env } from "@instagram/env/server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
+import { usersRouter } from "./routers/users";
 
 const app = new Hono();
 
@@ -17,6 +18,8 @@ app.use(
 app.get("/", (c) => {
   return c.text("OK");
 });
+
+app.route("/users", usersRouter);
 
 import { serve } from "@hono/node-server";
 
