@@ -1,6 +1,6 @@
 import { Hono } from "hono";
-import { countDistinct, db, desc, eq, sql } from "@instagram/db";
-import { commentLikesTable, postLikesTable, usersTable } from "@instagram/db/schema";
+import { countDistinct, db, desc, eq, lte, sql } from "@instagram/db";
+import { captionTagsTable, commentLikesTable, photoTagsTable, postLikesTable, usersTable } from "@instagram/db/schema";
 
 export const usersRouter = new Hono();
 
@@ -122,6 +122,116 @@ usersRouter.get("/users-with-number-of-likes", async(c) => {
             },
             200,
         );
+    } catch (error) {
+        return c.json(
+            {
+                success: false,
+                error: error instanceof Error ? error.message : "Internal server error",
+                message: "Internal server error",
+            },
+            500,
+        );
+    }
+})
+
+usersRouter.get("/tags", async (c) => {
+    try {
+        const cutoffDate = new Date("2030-07-01");
+        const tagUsers = db
+            .select({
+                userId: photoTagsTable.userId,
+                tagDate: photoTagsTable.createdAt,
+            })
+            .from(photoTagsTable)
+            .where(lte(photoTagsTable.createdAt, cutoffDate))
+            .union(
+                db
+                    .select({
+                        userId: captionTagsTable.userId,
+                        tagDate: captionTagsTable.createdAt,
+                    })
+                    .from(captionTagsTable)
+                    .where(lte(captionTagsTable.createdAt, cutoffDate)),
+            )
+            .as("tag_users");
+
+        const tags = await db
+            .select({
+                username: usersTable.username,
+                tagDate: tagUsers.tagDate,
+            })
+            .from(tagUsers)
+            .innerJoin(usersTable, eq(usersTable.id, tagUsers.userId))
+            .orderBy(usersTable.username, tagUsers.tagDate);
+
+        if (tags.length === 0) {
+            return c.json({
+                success: false,
+                error: "No tags found",
+                message: "No tags found",
+            }, 404);
+        }
+
+        return c.json({
+            success: true,
+            data: tags,
+        }, 200);
+    } catch (error) {
+        return c.json(
+            {
+                success: false,
+                error: error instanceof Error ? error.message : "Internal server error",
+                message: "Internal server error",
+            },
+            500,
+        );
+    }
+})
+
+usersRouter.get("/tags-with-simple-cte", async (c) => {
+    try {
+        const cutoffDate = new Date("2030-07-01");
+        const tagUsersCte = db.$with("tag_users").as(
+            db
+                .select({
+                    userId: photoTagsTable.userId,
+                    tagDate: photoTagsTable.createdAt,
+                })
+                .from(photoTagsTable)
+                .where(lte(photoTagsTable.createdAt, cutoffDate))
+                .union(
+                    db
+                        .select({
+                            userId: captionTagsTable.userId,
+                            tagDate: captionTagsTable.createdAt,
+                        })
+                        .from(captionTagsTable)
+                        .where(lte(captionTagsTable.createdAt, cutoffDate)),
+                ),
+        );
+
+        const tags = await db
+            .with(tagUsersCte)
+            .select({
+                username: usersTable.username,
+                tagDate: tagUsersCte.tagDate,
+            })
+            .from(tagUsersCte)
+            .innerJoin(usersTable, eq(usersTable.id, tagUsersCte.userId))
+            .orderBy(usersTable.username, tagUsersCte.tagDate);
+
+        if (tags.length === 0) {
+            return c.json({
+                success: false,
+                error: "No tags found",
+                message: "No tags found",
+            }, 404);
+        }
+
+        return c.json({
+            success: true,
+            data: tags,
+        }, 200);
     } catch (error) {
         return c.json(
             {
