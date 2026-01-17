@@ -38,17 +38,16 @@ function chunkArray<T>(items: T[], size: number) {
   return chunks;
 }
 
-async function insertReturning<TReturn>(
-  table: unknown,
-  rows: unknown[],
-  label?: string,
-) {
+async function insertReturning<TReturn>(table: unknown, rows: unknown[], label?: string) {
   const results: TReturn[] = [];
   let chunkIndex = 0;
   const chunks = chunkArray(rows, INSERT_CHUNK_SIZE);
   const totalChunks = chunks.length;
   for (const chunk of chunks) {
-    const inserted = await db.insert(table as never).values(chunk as never).returning();
+    const inserted = await db
+      .insert(table as never)
+      .values(chunk as never)
+      .returning();
     results.push(...(inserted as TReturn[]));
     if (label) {
       chunkIndex += 1;
@@ -178,10 +177,9 @@ async function seedPosts(userIds: number[]) {
 }
 
 async function seedHashtags() {
-  const tags: { title: string }[] = Array.from(
-    { length: seedConfig.hashtags },
-    (_, index) => ({ title: makeHashtag(index + 1) }),
-  );
+  const tags: { title: string }[] = Array.from({ length: seedConfig.hashtags }, (_, index) => ({
+    title: makeHashtag(index + 1),
+  }));
 
   return insertReturning<HashtagRow>(schema.hashtagsTable, tags, "hashtags");
 }

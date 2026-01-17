@@ -1,4 +1,5 @@
 CREATE TYPE "reaction_type" AS ENUM('like', 'love', 'care', 'funny', 'sad');--> statement-breakpoint
+CREATE EXTENSION IF NOT EXISTS postgis;--> statement-breakpoint
 CREATE TABLE "comment_reactions" (
 	"type" "reaction_type" DEFAULT 'like'::"reaction_type" NOT NULL,
 	"comment_id" integer,
