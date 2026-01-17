@@ -4,18 +4,67 @@ import * as schema from "@instagram/db/schema";
 import { sql } from "@instagram/db/index";
 
 const shown = {
-  users: 20,
-  postsPerUserMin: 1,
-  postsPerUserMax: 4,
-  hashtags: 12,
-  maxHashtagsPerPost: 3,
-  maxFollowersPerUser: 5,
-  maxCommentsPerPost: 5,
-  maxLikesPerPost: 6,
-  maxLikesPerComment: 4,
-  maxPhotoTagsPerPost: 2,
-  maxCaptionTagsPerPost: 2,
+  users: 5345,
+  postsPerUserMin: 2,
+  postsPerUserMax: 6,
+  hashtags: 3207,
+  maxHashtagsPerPost: 5,
+  maxFollowersPerUser: 10,
+  maxCommentsPerPost: 8,
+  maxLikesPerPost: 19,
+  maxLikesPerComment: 13,
+  maxPhotoTagsPerPost: 3,
+  maxCaptionTagsPerPost: 3,
 };
+
+const INSERT_CHUNK_SIZE = 1000;
+
+type UserRow = typeof schema.usersTable.$inferSelect;
+type PostRow = typeof schema.postsTable.$inferSelect;
+type HashtagRow = typeof schema.hashtagsTable.$inferSelect;
+type CommentRow = typeof schema.commentsTable.$inferSelect;
+
+function chunkArray<T>(items: T[], size: number) {
+  if (size <= 0) return [items];
+  const chunks: T[][] = [];
+  for (let i = 0; i < items.length; i += size) {
+    chunks.push(items.slice(i, i + size));
+  }
+  return chunks;
+}
+
+async function insertReturning<TReturn>(
+  table: unknown,
+  rows: unknown[],
+  label?: string,
+) {
+  const results: TReturn[] = [];
+  let chunkIndex = 0;
+  const chunks = chunkArray(rows, INSERT_CHUNK_SIZE);
+  const totalChunks = chunks.length;
+  for (const chunk of chunks) {
+    const inserted = await db.insert(table as never).values(chunk as never).returning();
+    results.push(...(inserted as TReturn[]));
+    if (label) {
+      chunkIndex += 1;
+      console.log(`${label}: ${chunkIndex}/${totalChunks}`);
+    }
+  }
+  return results;
+}
+
+async function insertInChunks<T>(table: unknown, rows: T[], label?: string) {
+  let chunkIndex = 0;
+  const chunks = chunkArray(rows, INSERT_CHUNK_SIZE);
+  const totalChunks = chunks.length;
+  for (const chunk of chunks) {
+    await db.insert(table as never).values(chunk as never);
+    if (label) {
+      chunkIndex += 1;
+      console.log(`${label}: ${chunkIndex}/${totalChunks}`);
+    }
+  }
+}
 
 function makeUsername(index: number) {
   const base = faker.internet
@@ -28,8 +77,9 @@ function makeUsername(index: number) {
 function makeHashtag(index: number) {
   const word = faker.word.noun();
   const base = word.replace(/[^a-zA-Z0-9_]/g, "").toLowerCase();
-  const value = base.slice(0, 45) || `tag${index}`;
-  return value;
+  const suffix = `_${index}`;
+  const head = (base || "tag").slice(0, Math.max(0, 45 - suffix.length));
+  return `${head}${suffix}`;
 }
 
 async function clearTables() {
@@ -67,7 +117,7 @@ async function seedUsers() {
     };
   });
 
-  return db.insert(schema.usersTable).values(users).returning();
+  return insertReturning<UserRow>(schema.usersTable, users, "users");
 }
 
 async function seedPosts(userIds: number[]) {
@@ -96,21 +146,16 @@ async function seedPosts(userIds: number[]) {
     });
   });
 
-  return posts.length ? db.insert(schema.postsTable).values(posts).returning() : [];
+  return posts.length ? insertReturning<PostRow>(schema.postsTable, posts, "posts") : [];
 }
 
 async function seedHashtags() {
-  const tags: { title: string }[] = [];
-  const seen = new Set<string>();
+  const tags: { title: string }[] = Array.from(
+    { length: shown.hashtags },
+    (_, index) => ({ title: makeHashtag(index + 1) }),
+  );
 
-  while (tags.length < shown.hashtags) {
-    const title = makeHashtag(tags.length + 1);
-    if (seen.has(title)) continue;
-    seen.add(title);
-    tags.push({ title });
-  }
-
-  return db.insert(schema.hashtagsTable).values(tags).returning();
+  return insertReturning<HashtagRow>(schema.hashtagsTable, tags, "hashtags");
 }
 
 async function seedHashtagPosts(postIds: number[], hashtagIds: number[]) {
@@ -129,7 +174,7 @@ async function seedHashtagPosts(postIds: number[], hashtagIds: number[]) {
   }
 
   if (entries.length) {
-    await db.insert(schema.hashtagsPostsTable).values(entries);
+    await insertInChunks(schema.hashtagsPostsTable, entries, "hashtags_posts");
   }
 }
 
@@ -150,7 +195,7 @@ async function seedFollowers(userIds: number[]) {
   }
 
   if (entries.length) {
-    await db.insert(schema.followersTable).values(entries);
+    await insertInChunks(schema.followersTable, entries, "followers");
   }
 }
 
@@ -169,7 +214,9 @@ async function seedComments(userIds: number[], postIds: number[]) {
     }
   }
 
-  return entries.length ? db.insert(schema.commentsTable).values(entries).returning() : [];
+  return entries.length
+    ? insertReturning<CommentRow>(schema.commentsTable, entries, "comments")
+    : [];
 }
 
 async function seedPhotoTags(userIds: number[], postIds: number[]) {
@@ -194,7 +241,7 @@ async function seedPhotoTags(userIds: number[], postIds: number[]) {
   }
 
   if (entries.length) {
-    await db.insert(schema.photoTagsTable).values(entries);
+    await insertInChunks(schema.photoTagsTable, entries, "photo_tags");
   }
 }
 
@@ -218,7 +265,7 @@ async function seedCaptionTags(userIds: number[], postIds: number[]) {
   }
 
   if (entries.length) {
-    await db.insert(schema.captionTagsTable).values(entries);
+    await insertInChunks(schema.captionTagsTable, entries, "caption_tags");
   }
 }
 
@@ -239,7 +286,7 @@ async function seedPostLikes(userIds: number[], postIds: number[]) {
   }
 
   if (entries.length) {
-    await db.insert(schema.postLikesTable).values(entries);
+    await insertInChunks(schema.postLikesTable, entries, "post_likes");
   }
 }
 
@@ -263,38 +310,62 @@ async function seedCommentLikes(userIds: number[], commentIds: number[]) {
   }
 
   if (entries.length) {
-    await db.insert(schema.commentLikesTable).values(entries);
+    await insertInChunks(schema.commentLikesTable, entries, "comment_likes");
   }
 }
 
 async function main() {
   faker.seed(12345);
 
+  console.time("seed:total");
+
   await clearTables();
 
+  console.time("seed:users");
   const users = await seedUsers();
+  console.timeEnd("seed:users");
   const userIds = users.map((user) => user.id);
 
+  console.time("seed:posts");
   const posts = await seedPosts(userIds);
+  console.timeEnd("seed:posts");
   const postIds = posts.map((post) => post.id);
 
+  console.time("seed:hashtags");
   const hashtags = await seedHashtags();
+  console.timeEnd("seed:hashtags");
   const hashtagIds = hashtags.map((tag) => tag.id);
 
+  console.time("seed:hashtagsPosts");
   await seedHashtagPosts(postIds, hashtagIds);
+  console.timeEnd("seed:hashtagsPosts");
+  console.time("seed:followers");
   await seedFollowers(userIds);
+  console.timeEnd("seed:followers");
 
+  console.time("seed:comments");
   const comments = await seedComments(userIds, postIds);
+  console.timeEnd("seed:comments");
   const commentIds = comments.map((comment) => comment.id);
 
+  console.time("seed:photoTags");
   await seedPhotoTags(userIds, postIds);
+  console.timeEnd("seed:photoTags");
+  console.time("seed:captionTags");
   await seedCaptionTags(userIds, postIds);
+  console.timeEnd("seed:captionTags");
+  console.time("seed:postLikes");
   await seedPostLikes(userIds, postIds);
+  console.timeEnd("seed:postLikes");
+  console.time("seed:commentLikes");
   await seedCommentLikes(userIds, commentIds);
+  console.timeEnd("seed:commentLikes");
 
   console.log(
     `Seeded ${userIds.length} users, ${postIds.length} posts, ${commentIds.length} comments.`,
   );
+
+  console.timeEnd("seed:total");
 }
 
 try {
